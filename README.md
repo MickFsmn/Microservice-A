@@ -33,24 +33,27 @@ This microservice handles media uploads (photos and videos) for bands. Band memb
 
 ## Filestructure Overview
 
+This is going to look incomprehensible in github's readme preview, so just open the file to view this proper
+
+
 media-service/
-├── controllers/ # Business logic for API endpoints
-│ └── mediaController.js
-├── models/ # Mongoose schema for media entries
-│ └── mediaModel.js
-├── routes/ # Express routes
-│ └── mediaRoutes.js
-├── middleware/ # File upload config using Multer
-│ └── upload.js
-├── config/ # Database connection
-│ └── db.js
-├── mediaUploads/ # Media files stored here (on disk)
-├── .env # Environment variables (not tracked in Git)
-├── .gitignore # Files and folders to ignore in Git
-├── app.js # Main server entry point
-├── package.json # Project metadata and dependencies
-├── index.html # Test HTML page for uploading and deleting media
-└── README.md # Youre reading it!
+├── controllers/            # Business logic for API endpoints
+│   └── mediaController.js
+├── models/                 # Mongoose schema for media entries
+│   └── mediaModel.js
+├── routes/                 # Express routes
+│   └── mediaRoutes.js
+├── middleware/             # File upload config using Multer
+│   └── upload.js
+├── config/                 # Database connection
+│   └── db.js
+├── mediaUploads/           # Media files stored here (on disk)
+├── .env                    # Environment variables (not tracked in Git), make your own as intstructed above
+├── .gitignore              # Files and folders to ignore in Git
+├── app.js                  # Main server entry point
+├── package.json            # Project metadata and dependencies
+├── index.html              # test HTML page for uploading and deleting media. 
+└── README.md               # Hi!
 
 # API Endpoints
 
