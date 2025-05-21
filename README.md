@@ -2,7 +2,7 @@
 Kolton's media service
 
 
-# Media Microservice for Band Hub App 
+### Media Microservice for Band Hub App 
 
 This microservice handles media uploads (photos and videos) for bands. Band members can upload media with metadata (e.g., date taken, band name), retrieve and filter it, and perform basic CRUD operations. Built using Node.js, Express, and MongoDB.
 
@@ -10,7 +10,7 @@ This microservice handles media uploads (photos and videos) for bands. Band memb
 
 # Getting Started
 
-# Prerequisites
+## Prerequisites
 
 - Node.js (v18+ recommended)
 - npm (comes with Node)
@@ -18,7 +18,7 @@ This microservice handles media uploads (photos and videos) for bands. Band memb
 
 ---
 
-# Setup Instructions
+## Setup Instructions
 
 1. Clone the repository
 2. npm install
@@ -31,26 +31,26 @@ This microservice handles media uploads (photos and videos) for bands. Band memb
    - `http://localhost:PREFFERED_PORT/api/media`
 6. Test html url: http://localhost:PREFFERED_PORT - opens index.html so you can see and test things straight up
 
-# Filestructure Overview
+## Filestructure Overview
 
 media-service/
-├── controllers/            # Business logic for API endpoints
-│   └── mediaController.js
-├── models/                 # Mongoose schema for media entries
-│   └── mediaModel.js
-├── routes/                 # Express routes
-│   └── mediaRoutes.js
-├── middleware/             # File upload config using Multer
-│   └── upload.js
-├── config/                 # Database connection
-│   └── db.js
-├── mediaUploads/           # Media files stored here (on disk)
-├── .env                    # Environment variables (not tracked in Git), make your own as intstructed above
-├── .gitignore              # Files and folders to ignore in Git
-├── app.js                  # Main server entry point
-├── package.json            # Project metadata and dependencies
-├── index.html              # test HTML page for uploading and deleting media. 
-└── README.md               # Hi!
+├── controllers/ # Business logic for API endpoints
+│ └── mediaController.js
+├── models/ # Mongoose schema for media entries
+│ └── mediaModel.js
+├── routes/ # Express routes
+│ └── mediaRoutes.js
+├── middleware/ # File upload config using Multer
+│ └── upload.js
+├── config/ # Database connection
+│ └── db.js
+├── mediaUploads/ # Media files stored here (on disk)
+├── .env # Environment variables (not tracked in Git)
+├── .gitignore # Files and folders to ignore in Git
+├── app.js # Main server entry point
+├── package.json # Project metadata and dependencies
+├── index.html # Test HTML page for uploading and deleting media
+└── README.md # Youre reading it!
 
 # API Endpoints
 
