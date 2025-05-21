@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+     <meta charset="UTF-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1" />
+     <title>Media Microservice Test UI</title>
+     <style>
+          body {
+               font-family: Arial, sans-serif;
+               margin: 2rem;
+          }
+
+          label {
+               display: block;
+               margin-top: 1rem;
+          }
+
+          input, select, textarea {
+               width: 300px;
+               padding: 0.3rem;
+               margin-top: 0.3rem;
+          }
+
+          button {
+               margin-top: 1rem;
+               padding: 0.5rem 1rem;
+          }
+
+          .result {
+               margin-top: 2rem;
+          }
+
+          .media-item {
+               border: 1px solid #ccc;
+               padding: 1rem;
+               margin-bottom: 1rem;
+          }
+
+          video, img {
+               max-width: 200px;
+               display: block;
+               margin-top: 0.5rem;
+          }
+     </style>
+</head>
+<body>
+
+     <h1>Media Upload and Search Test</h1>
+
+     <form id="uploadForm">
+          <label>
+               Band Name (required):
+               <input type="text" name="band" id="band" required />
+          </label>
+
+          <label>
+               Media File (photo/video):
+               <input type="file" name="media" id="media" accept="image/*,video/*" required />
+          </label>
+
+          <label>
+               Media Type:
+               <select name="mediaType" id="mediaType" required>
+                    <option value="">--Select--</option>
+                    <option value="photo">Photo</option>
+                    <option value="video">Video</option>
+               </select>
+          </label>
+
+          <label>
+               Date Taken (required):
+               <input type="date" id="dateTaken" required />
+          </label>
+
+          <label>
+               Title (optional):
+               <input type="text" id="title" />
+          </label>
+
+          <label>
+               Description (optional):
+               <textarea id="description" rows="3"></textarea>
+          </label>
+
+          <label>
+               Location (optional):
+               <input type="text" id="location" />
+          </label>
+
+          <button type="submit">Upload Media</button>
+     </form>
+
+     <hr />
+
+     <h2>Search Media</h2>
+     <form id="searchForm">
+          <label>
+               Band Name (leave blank for all):
+               <input type="text" id="searchBand" />
+          </label>
+
+          <label>
+               Media Type:
+               <select id="searchMediaType">
+                    <option value="">All</option>
+                    <option value="photo">Photo</option>
+                    <option value="video">Video</option>
+               </select>
+          </label>
+
+          <button type="submit">Search</button>
+     </form>
+
+     <div id="editModal" style="display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:#fff; padding:1rem; border:1px solid #ccc; box-shadow: 0 0 10px rgba(0,0,0,0.3); z-index:1000;">
+          <h3>Edit Media</h3>
+          <input type="text" id="editTitle" placeholder="Title" /><br />
+          <textarea id="editDescription" placeholder="Description"></textarea><br />
+          <input type="text" id="editLocation" placeholder="Location" /><br />
+          <button onclick="submitEdit()">Save</button>
+          <button onclick="closeEditModal()">Cancel</button>
+     </div>
+
+     <div class="result" id="results"></div>
+
+     <script>
+          const uploadForm = document.getElementById('uploadForm');
+          const searchForm = document.getElementById('searchForm');
+          const resultsDiv = document.getElementById('results');
+
+          uploadForm.addEventListener('submit', async (e) => {
+               e.preventDefault();
+
+               const band = document.getElementById('band').value.trim();
+               const mediaFile = document.getElementById('media').files[0];
+               const mediaType = document.getElementById('mediaType').value;
+               const dateTaken = document.getElementById('dateTaken').value;
+               const title = document.getElementById('title').value.trim();
+               const description = document.getElementById('description').value.trim();
+               const location = document.getElementById('location').value.trim();
+
+               if (!band || !mediaFile || !mediaType || !dateTaken) {
+                    alert('Please fill in all required fields.');
+                    return;
+               }
+
+               const formData = new FormData();
+               formData.append('band', band);
+               formData.append('media', mediaFile);
+               formData.append('mediaType', mediaType);
+               formData.append('dateTaken', dateTaken);
+               formData.append('title', title);
+               formData.append('description', description);
+               formData.append('location', location);
+
+               try {
+                    const res = await fetch('/api/media', {
+                         method: 'POST',
+                         body: formData
+                    });
+
+                    if (!res.ok) {
+                         const err = await res.json();
+                         alert('Upload failed: ' + (err.message || 'Unknown error'));
+                         return;
+                    }
+
+                    const data = await res.json();
+                    alert(`Upload successful! Filename: ${data.filename}`);
+
+                    uploadForm.reset();
+               } catch (err) {
+                    alert('Error uploading media: ' + err.message);
+               }
+          });
+
+          searchForm.addEventListener('submit', async (e) => {
+               e.preventDefault();
+
+               const band = document.getElementById('searchBand').value.trim();
+               const mediaType = document.getElementById('searchMediaType').value;
+
+               let query = [];
+               if (band) query.push(`band=${encodeURIComponent(band)}`);
+               if (mediaType) query.push(`mediaType=${encodeURIComponent(mediaType)}`);
+
+               try {
+                    const res = await fetch('/api/media?' + query.join('&'));
+                    if (!res.ok) {
+                         alert('Search failed');
+                         return;
+                    }
+
+                    const mediaList = await res.json();
+                    displayResults(mediaList);
+               } catch (err) {
+                    alert('Error fetching media: ' + err.message);
+               }
+          });
+
+          function displayResults(mediaList) {
+               if (!mediaList.length) {
+                    resultsDiv.innerHTML = '<p>No media found.</p>';
+                    return;
+               }
+
+               resultsDiv.innerHTML = '';
+               mediaList.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'media-item';
+
+                    let mediaElement = '';
+                    if (item.mediaType === 'photo') {
+                         mediaElement = `<img src="/mediaUploads/${item.mediaPath}" alt="${item.title || 'photo'}" />`;
+                    } else if (item.mediaType === 'video') {
+                         mediaElement = `<video controls src="/mediaUploads/${item.mediaPath}"></video>`;
+                    }
+
+                    div.innerHTML = `
+                         <strong>Band:</strong> ${item.band} <br/>
+                         <strong>Title:</strong> ${item.title || '(none)'} <br/>
+                         <strong>Description:</strong> ${item.description || '(none)'} <br/>
+                         <strong>Location:</strong> ${item.location || '(none)'} <br/>
+                         <strong>Date Taken:</strong> ${new Date(item.dateTaken).toLocaleDateString()} <br/>
+                         ${mediaElement} <br/>
+                         <button onclick="openEditModal('${item._id}', \`${item.title || ''}\`, \`${item.description || ''}\`, \`${item.location || ''}\`)">Edit</button>
+                         <button onclick="deleteMedia('${item._id}', '${item.title || 'Untitled'}')">Delete</button>
+                    `;
+
+                    resultsDiv.appendChild(div);
+               });
+          }
+
+
+          async function deleteMedia(id, title) {
+               const confirmDelete = confirm(`Are you sure you want to delete "${title}"?`);
+               if (!confirmDelete) return;
+
+               try {
+                    const response = await fetch(`/api/media/${id}`, {
+                         method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                         alert(`"${title}" deleted.`);
+                         searchForm.dispatchEvent(new Event('submit')); 
+                    } else {
+                         const errData = await response.json();
+                         alert(`Error deleting: ${errData.message}`);
+                    }
+               } catch (err) {
+                    console.error('Delete error:', err);
+                    alert('Server error during deletion.');
+               }
+          }
+
+          // edit modal nonsense
+          let currentEditId = null;
+
+          function openEditModal(id, title, description, location) {
+               currentEditId = id;
+               document.getElementById('editTitle').value = title;
+               document.getElementById('editDescription').value = description;
+               document.getElementById('editLocation').value = location;
+               document.getElementById('editModal').style.display = 'block';
+          }
+
+          function closeEditModal() {
+               currentEditId = null;
+               document.getElementById('editModal').style.display = 'none';
+          }
+
+          async function submitEdit() {
+               const updated = {
+                    title: document.getElementById('editTitle').value.trim(),
+                    description: document.getElementById('editDescription').value.trim(),
+                    location: document.getElementById('editLocation').value.trim()
+               };
+
+               try {
+                    const res = await fetch(`/api/media/${currentEditId}`, {
+                         method: 'PUT',
+                         headers: { 'Content-Type': 'application/json' },
+                         body: JSON.stringify(updated)
+                    });
+
+                    if (!res.ok) {
+                         const err = await res.json();
+                         alert('Update failed: ' + err.message);
+                    } else {
+                         alert('Media updated.');
+                         closeEditModal();
+                         fetchAndDisplayMedia(); 
+                    }
+               } catch (err) {
+                    alert('Server error: ' + err.message);
+               }
+          }
+          async function fetchAndDisplayMedia() {
+               try {
+                    const res = await fetch('/api/media');
+                    if (!res.ok) throw new Error('Fetch failed');
+                    const mediaList = await res.json();
+                    displayResults(mediaList);
+               } catch (err) {
+                    alert('Failed to refresh list: ' + err.message);
+               }
+          }
+
+
+
+     </script>
+
+</body>
+</html>
