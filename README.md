@@ -64,4 +64,7 @@ media-service/
 | PUT    | `/api/media/:id` | Update media metadata                   |
 | DELETE | `/api/media/:id` | Delete media by ID                      |
 
+![image](https://github.com/user-attachments/assets/87c83e9d-3183-4af5-b9bb-bdf4e0006740)
+
+
 ### please give me feedback on how well this works for you/any changes as appropriate :)
