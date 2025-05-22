@@ -67,4 +67,44 @@ media-service/
 ![image](https://github.com/user-attachments/assets/87c83e9d-3183-4af5-b9bb-bdf4e0006740)
 
 
+# Example calls
+Upload media (POST)
+
+const formData = new FormData();
+formData.append('media', fileInput.files[0]);  // fileInput is an <input type="file">
+
+fetch('/api/media', {
+  method: 'POST',
+  body: formData,
+})
+  .then(res => res.json())
+  .then(data => console.log('Uploaded:', data));
+
+GET
+
+fetch('/api/media')
+  .then(res => res.json())
+  .then(data => console.log('Media list:', data));
+
+PUT (update media metadata)
+
+const mediaId = '1234567890';
+fetch(`/api/media/${mediaId}`, {
+  method: 'PUT',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ title: 'Updated Title', description: 'New desc' }),
+})
+  .then(res => res.json())
+  .then(data => console.log('Updated:', data));
+
+DELETE media
+
+const mediaId = '1234567890';
+fetch(`/api/media/${mediaId}`, {
+  method: 'DELETE',
+})
+  .then(res => res.json())
+  .then(data => console.log('Deleted:', data));
+
+
 ### please give me feedback on how well this works for you/any changes as appropriate :)
